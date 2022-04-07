@@ -18,6 +18,9 @@ app.use(xss())
 app.use(cors())
 app.use(compression())
 
+let healthy = false
+let shuttingDown = false
+
 console.log('Server starting...')
 
 // -------- INIT
@@ -45,7 +48,31 @@ crawlJob.start()
 
 async function crawl() {
   console.log('running crawl job')
+  if (shuttingDown || !healthy) return
   const items = await crawler.crawl()
   await database.repositories.deleteMany()
   await database.repositories.insertMany(items, { ordered: false })
+}
+
+// -------- HEALTH ENDPOINT
+app.get('/healthz', (req, res) => {
+  if (healthy) {
+    res.send('OK')
+  } else {
+    res.sendStatus(503)
+  }
+})
+
+// -------- SIGNALS
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)
+
+async function shutdown() {
+  console.info('Shutting down..')
+  if (!shuttingDown) {
+    shuttingDown = true
+    healthy = false
+    await database.close()
+    process.exit()
+  }
 }
