@@ -7,6 +7,8 @@ const compression = require('compression')
 const xss = require('xss-clean')
 const cors = require('cors')
 
+const database = require('./database')
+
 app.use(express.json())
 
 app.use(helmet())
@@ -18,6 +20,8 @@ console.log('Server starting...')
 
 // -------- INIT
 async function init() {
+  await database.connect()
+
   app.listen(3000)
   app.use(require('./routes/'))
 
