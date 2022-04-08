@@ -5,6 +5,9 @@ router.get('/build', (req, res) => {
   res.send(build)
 })
 
+router.use('/repositories', require('./repositories'))
+router.use('/user', require('./user'))
+
 router.use((err, req, res, next) => {
   if (!err) {
     next()
