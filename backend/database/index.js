@@ -4,6 +4,7 @@ const MongoClient = require('mongodb').MongoClient
 const database = {
   db: null,
   repositories: null,
+  stars: null,
   async connect() {
     try {
       const url = process.env.MONGODB_URL ?? 'mongodb://127.0.0.1:27017/'
@@ -20,6 +21,7 @@ const database = {
     }
     this.db = this.client.db('coding-challenge')
     this.repositories = this.db.collection('repositories')
+    this.stars = this.db.collection('stars')
   },
   async close() {
     this.client.close()
